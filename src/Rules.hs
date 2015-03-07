@@ -40,7 +40,7 @@ braced f x
 toString :: Expression -> String
 toString (NT x) = pure x
 toString (T x) = pure x
-toString Empty = "ε"
+toString Empty = "#"
 toString (Product a b) = braced isP a ++ braced isP b
   where isP (Product _ _) = True
         isP (Star _) = True
