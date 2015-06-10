@@ -90,7 +90,9 @@ removeEmpty f a b = f a b
 
 simplify :: Expression -> Expression
 simplify (Product a b) = removeEmpty Product (simplify a) (simplify b)
-simplify (Sum a b) = Sum (simplify a) (simplify b)
+simplify (Sum a b)
+  | a == b = simplify a
+  | otherwise = Sum (simplify a) (simplify b)
 simplify (Star (simplify -> a)) = case a of
   Empty -> a
   Star _ -> a

@@ -1,9 +1,4 @@
 S
-S -> aS
-S -> bA
-S -> #
-A -> aA
-A -> bB
-B -> aB
-B -> bS
-
+S -> ab + B + C
+B -> b
+C -> aC + b

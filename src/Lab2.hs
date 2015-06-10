@@ -13,7 +13,7 @@ trimEnd = Map.map removeEnd . simplifyAll
 
 main :: IO ()
 main = do
-  rs <- readFile "rules"
+  rs <- readFile "rules_2"
   (Grammar _ rules) <- case parse grammar rs of
    Right r -> return r
    Left e -> fail $ show e

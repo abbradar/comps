@@ -17,17 +17,25 @@ module Parser
        , spaces
        , alphaNum
        , string
+       , number
        , try
        , anyOf
        , noneOf
        , sepBy
        , between
+       , (<&>)
+       , strOf
+       , chainl1
+       , chainr1
+       , trace
        ) where
 
 import Data.Char
+import Data.Monoid
 import Control.Monad
 import Control.Arrow
 import Control.Applicative
+import qualified Debug.Trace as T
 
 type SourcePos = (Int, Int)
 type Error = (SourcePos, String)
@@ -115,6 +123,9 @@ spaces = many space
 alphaNum :: Parser Char
 alphaNum = satisfy isAlphaNum anyChar
 
+number :: Parser Integer
+number = read <$> some (satisfy isDigit anyChar)
+
 string :: String -> Parser String
 string [] = pure []
 string (h:t) = (:) <$> char h <*> string t
@@ -136,3 +147,33 @@ sepBy p s = do
 
 between :: Parser sep1 -> Parser sep2 -> Parser a -> Parser a
 between o c p = o *> p <* c
+
+(<&>) :: Monoid a => Parser a -> Parser a -> Parser a
+a <&> b = (<>) <$> a <*> b
+
+infixl 4 <&>
+
+strOf :: [String] -> Parser String
+strOf = foldr1 (<|>) . map string
+
+chainl1 :: Parser a -> Parser (a -> a -> a) -> Parser a
+chainl1 p op = p >>= rest
+  where rest x = do
+          f <- op
+          y <- p
+          rest (f x y)
+         <|> return x
+
+chainr1 :: Parser a -> Parser (a -> a -> a) -> Parser a
+chainr1 p op = expr
+  where expr = first <*> expr <|> p
+        first = do
+          x <- p
+          f <- op
+          return (f x)
+
+trace :: String -> Parser a -> Parser a
+trace str exp = do
+  --r <- T.trace ("entering " ++ str) exp
+  --return $ T.trace ("exiting " ++ str) r
+  exp
